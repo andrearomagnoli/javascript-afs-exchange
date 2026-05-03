@@ -178,3 +178,32 @@ select.form-select {
   padding: 12px 30px;
 }
 
+/* ---------------------------------------------------
+   DROPDOWN SESSO — FIX MOBILE
+--------------------------------------------------- */
+
+/* Testo sempre visibile */
+select.form-select {
+  color: #000 !important;
+  background-color: #fff !important;
+  font-size: 1.1rem !important;
+  min-height: 44px !important; /* touch-friendly */
+  padding: 6px 10px !important;
+}
+
+/* Tema scuro */
+body.dark-theme select.form-select {
+  color: #fff !important;
+  background-color: #333 !important;
+  border-color: #666 !important;
+}
+
+/* iPhone Safari fix */
+@supports (-webkit-touch-callout: none) {
+  select.form-select {
+    -webkit-text-fill-color: #000 !important;
+  }
+  body.dark-theme select.form-select {
+    -webkit-text-fill-color: #fff !important;
+  }
+}
