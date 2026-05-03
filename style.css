@@ -16,3 +16,7 @@
   background-color: #333;
   color: #eee;
 }
+
+.dark-theme #output {
+  color: #fff !important;
+}
