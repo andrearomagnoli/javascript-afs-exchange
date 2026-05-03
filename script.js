@@ -80,7 +80,7 @@ function parseRagazzi() {
 }
 
 // -----------------------------
-// PARSER FAMIGLIE (CON MF CORRETTO + CHECK)
+// PARSER FAMIGLIE
 // -----------------------------
 function parseFamiglie() {
   const rows = document.querySelectorAll("#famiglie-table tbody tr");
@@ -90,10 +90,8 @@ function parseFamiglie() {
       const nome = r.children[0].querySelector("input").value.trim();
       const capSex = r.children[1].querySelector("input").value.trim();
 
-      // Estrai numeri ovunque siano
       const capacita = parseInt(capSex.match(/\d+/)?.[0] || "0");
 
-      // Estrai lettere M/F ovunque siano
       const letters = (capSex.match(/[MF]/gi) || []).map(x => x.toUpperCase());
       const hasM = letters.includes("M");
       const hasF = letters.includes("F");
@@ -107,7 +105,8 @@ function parseFamiglie() {
       const tags = r.children[2].querySelector("input").value
         .split(",").map(x => x.trim()).filter(x => x);
 
-      const soloStessoSesso = r.querySelector(".same-sex-only").checked;
+      const checkbox = r.querySelector(".same-sex-only");
+      const soloStessoSesso = checkbox ? checkbox.checked : false;
 
       return { nome, capacita, accetta, tags, soloStessoSesso };
     });
@@ -116,28 +115,26 @@ function parseFamiglie() {
 // -----------------------------
 // COMPATIBILITÀ
 // -----------------------------
-function compatibile(r, f, sessoCount = null) {
+function compatibile(r, f, sessoCount) {
 
-  // Non può andare nella propria famiglia
   if (r.famiglia.toLowerCase() === f.nome.toLowerCase()) return false;
 
-  // Vincolo M/F
   if (f.accetta !== "MF" && f.accetta !== r.sesso) return false;
 
-  // Vincoli "no"
   for (const forbidden of r.no)
     if (f.tags.includes(forbidden)) return false;
 
-  // Vincolo: solo stesso sesso
   if (f.soloStessoSesso && sessoCount) {
     const sc = sessoCount[f.nome];
-    const countM = sc.M;
-    const countF = sc.F;
+    if (sc) {
+      const countM = sc.M;
+      const countF = sc.F;
 
-    if (countM + countF > 0) {
-      if ((countM > 0 && r.sesso === "F") ||
-          (countF > 0 && r.sesso === "M")) {
-        return false;
+      if (countM + countF > 0) {
+        if ((countM > 0 && r.sesso === "F") ||
+            (countF > 0 && r.sesso === "M")) {
+          return false;
+        }
       }
     }
   }
@@ -146,11 +143,10 @@ function compatibile(r, f, sessoCount = null) {
 }
 
 // -----------------------------
-// SOLVER CON MRV + VINCOLO SESSO
+// SOLVER
 // -----------------------------
 function solve(ragazzi, famiglie) {
 
-  // MRV: ordina i ragazzi per numero di famiglie compatibili
   ragazzi.sort((a, b) => {
     const ca = famiglie.filter(f => compatibile(a, f, null)).length;
     const cb = famiglie.filter(f => compatibile(b, f, null)).length;
