@@ -119,7 +119,7 @@ function compatibile(r, f) {
 // -----------------------------
 function solve(ragazzi, famiglie) {
 
-  // Ordina i ragazzi per numero di famiglie compatibili (MRV)
+  // MRV: ordina i ragazzi per numero di famiglie compatibili
   ragazzi.sort((a, b) => {
     const ca = famiglie.filter(f => compatibile(a, f)).length;
     const cb = famiglie.filter(f => compatibile(b, f)).length;
