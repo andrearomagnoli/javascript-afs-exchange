@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Assegnatore a vincoli</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Assegnatore Ragazzi → Famiglie</h1>
+
+<div id="input-area">
+  <h2>Ragazzi</h2>
+  <textarea id="ragazzi-input" rows="8" placeholder="Es:
+Paolo Rossi, M, NO: cani
+Chiara Bianchi, F, NO: gatti
+Giulia Verdi, F
+Rebecca Viola, F"></textarea>
+
+  <h2>Famiglie</h2>
+  <textarea id="famiglie-input" rows="8" placeholder="Es:
+Rossi, 1F
+Bianchi, 2M, TAGS: gatti
+Viola, 1F, TAGS: gatti
+Gialli, 1F"></textarea>
+
+  <button id="solve-btn">Calcola</button>
+</div>
+
+<pre id="output"></pre>
+
+<script src="script.js"></script>
+</body>
+</html>
