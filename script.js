@@ -116,7 +116,7 @@ function parseFamiglie() {
 // -----------------------------
 // COMPATIBILITÀ
 // -----------------------------
-function compatibile(r, f, sessoCount) {
+function compatibile(r, f, sessoCount = null) {
 
   // Non può andare nella propria famiglia
   if (r.famiglia.toLowerCase() === f.nome.toLowerCase()) return false;
@@ -129,9 +129,10 @@ function compatibile(r, f, sessoCount) {
     if (f.tags.includes(forbidden)) return false;
 
   // Vincolo: solo stesso sesso
-  if (f.soloStessoSesso) {
-    const countM = sessoCount[f.nome].M;
-    const countF = sessoCount[f.nome].F;
+  if (f.soloStessoSesso && sessoCount) {
+    const sc = sessoCount[f.nome];
+    const countM = sc.M;
+    const countF = sc.F;
 
     if (countM + countF > 0) {
       if ((countM > 0 && r.sesso === "F") ||
@@ -151,8 +152,8 @@ function solve(ragazzi, famiglie) {
 
   // MRV: ordina i ragazzi per numero di famiglie compatibili
   ragazzi.sort((a, b) => {
-    const ca = famiglie.filter(f => compatibile(a, f, {})).length;
-    const cb = famiglie.filter(f => compatibile(b, f, {})).length;
+    const ca = famiglie.filter(f => compatibile(a, f, null)).length;
+    const cb = famiglie.filter(f => compatibile(b, f, null)).length;
     return ca - cb;
   });
 
