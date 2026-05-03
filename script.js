@@ -117,26 +117,30 @@ function parseFamiglie() {
 // -----------------------------
 function compatibile(r, f, sessoCount) {
 
+  // Non può andare nella propria famiglia
   if (r.famiglia.toLowerCase() === f.nome.toLowerCase()) return false;
 
+  // Vincolo M/F
   if (f.accetta !== "MF" && f.accetta !== r.sesso) return false;
 
+  // Vincoli "NO"
   for (const forbidden of r.no)
     if (f.tags.includes(forbidden)) return false;
 
-  if (f.soloStessoSesso && sessoCount) {
-    const sc = sessoCount[f.nome];
-    if (sc) {
-      const countM = sc.M;
-      const countF = sc.F;
+  // Vincolo: solo stesso sesso
+  if (f.soloStessoSesso) {
 
-      if (countM + countF > 0) {
-        if ((countM > 0 && r.sesso === "F") ||
-            (countF > 0 && r.sesso === "M")) {
-          return false;
-        }
-      }
-    }
+    // Se non abbiamo sessoCount (MRV), NON possiamo dire che è compatibile
+    // perché non sappiamo se la famiglia ha già un M o un F.
+    if (!sessoCount) return false;
+
+    const sc = sessoCount[f.nome];
+    const countM = sc.M;
+    const countF = sc.F;
+
+    // Se la famiglia ha già qualcuno, il sesso deve combaciare
+    if (countM > 0 && r.sesso === "F") return false;
+    if (countF > 0 && r.sesso === "M") return false;
   }
 
   return true;
