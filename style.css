@@ -2,20 +2,22 @@
    PLACEHOLDER PIÙ CHIARI
 --------------------------------------------------- */
 ::placeholder {
-  color: #bbbbbb !important;
+  color: #e0e0e0 !important;
+  font-size: 0.9em;
+  font-style: italic;
   opacity: 1;
 }
 
 ::-webkit-input-placeholder {
-  color: #bbbbbb !important;
+  color: #e0e0e0 !important;
 }
 
 :-ms-input-placeholder {
-  color: #bbbbbb !important;
+  color: #e0e0e0 !important;
 }
 
 ::-ms-input-placeholder {
-  color: #bbbbbb !important;
+  color: #e0e0e0 !important;
 }
 
 /* ---------------------------------------------------
