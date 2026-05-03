@@ -1,87 +1,104 @@
 // -----------------------------
-// PARSER RAGAZZI
+// TEMA SCURO
 // -----------------------------
-function parseRagazzi(text) {
-  return text.split("\n").filter(x => x.trim()).map(r => {
-    const parts = r.split(",");
-    const nome = parts[0].trim();
-    const sesso = parts[1].trim();
+document.getElementById("themeToggle").addEventListener("change", e => {
+  document.body.classList.toggle("dark-theme", e.target.checked);
+});
 
-    const no = parts
-      .slice(2)
-      .join(",")
-      .replace("NO:", "")
-      .split(",")
-      .map(x => x.trim())
-      .filter(x => x);
+// -----------------------------
+// ALERT
+// -----------------------------
+function showAlert(msg, type="danger") {
+  const html = `
+    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+      ${msg}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+  document.getElementById("alert-area").innerHTML = html;
+}
+
+// -----------------------------
+// TABELLE DINAMICHE
+// -----------------------------
+function addRagazzoRow() {
+  const tbody = document.querySelector("#ragazzi-table tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="form-control" placeholder="Paolo Rossi"></td>
+    <td>
+      <select class="form-select">
+        <option value="M">M</option>
+        <option value="F">F</option>
+      </select>
+    </td>
+    <td><input class="form-control" placeholder="cani, gatti"></td>
+    <td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">x</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function addFamigliaRow() {
+  const tbody = document.querySelector("#famiglie-table tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="form-control" placeholder="Rossi"></td>
+    <td><input class="form-control" placeholder="2MF"></td>
+    <td><input class="form-control" placeholder="gatti, uccelli"></td>
+    <td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">x</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// -----------------------------
+// PARSER
+// -----------------------------
+function parseRagazzi() {
+  const rows = document.querySelectorAll("#ragazzi-table tbody tr");
+  return [...rows].map(r => {
+    const nome = r.children[0].querySelector("input").value.trim();
+    const sesso = r.children[1].querySelector("select").value.trim();
+    const no = r.children[2].querySelector("input").value
+      .split(",").map(x => x.trim()).filter(x => x);
 
     return {
       nome,
       sesso,
       no,
-      famiglia: nome.split(" ").slice(-1)[0] // cognome
+      famiglia: nome.split(" ").slice(-1)[0]
     };
   });
 }
 
-// -----------------------------
-// PARSER FAMIGLIE
-// -----------------------------
-function parseFamiglie(text) {
-  return text.split("\n").filter(x => x.trim()).map(r => {
-    const parts = r.split(",");
-    const nome = parts[0].trim();
+function parseFamiglie() {
+  const rows = document.querySelectorAll("#famiglie-table tbody tr");
+  return [...rows].map(r => {
+    const nome = r.children[0].querySelector("input").value.trim();
+    const capSex = r.children[1].querySelector("input").value.trim();
 
-    const capSex = parts[1].trim();
     const capacita = parseInt(capSex);
-
-    // Estrai solo le lettere M/F
     let accetta = capSex.replace(/[0-9]/g, "").toUpperCase();
+    accetta = accetta.split("").sort().join(""); // FM → MF
 
-    // Normalizza: ordina alfabeticamente i caratteri
-    accetta = accetta.split("").sort().join("");
+    const tags = r.children[2].querySelector("input").value
+      .split(",").map(x => x.trim()).filter(x => x);
 
-    // Trasforma "FM" → "MF"
-    if (accetta === "MF") accetta = "MF";
-
-    const tags = parts
-      .slice(2)
-      .join(",")
-      .replace("TAGS:", "")
-      .split(",")
-      .map(x => x.trim())
-      .filter(x => x);
-
-    return {
-      nome,
-      capacita,
-      accetta,
-      tags
-    };
+    return { nome, capacita, accetta, tags };
   });
 }
 
 // -----------------------------
-// COMPATIBILITÀ GENERICA
+// COMPATIBILITÀ
 // -----------------------------
-function compatibile(ragazzo, famiglia) {
-  // Non può andare nella propria famiglia
-  if (ragazzo.famiglia === famiglia.nome) return false;
-
-  // Compatibilità sesso
-  if (famiglia.accetta !== "MF" && famiglia.accetta !== ragazzo.sesso)
-    return false;
-
-  // Vincoli generici NO vs TAGS
-  for (const forbidden of ragazzo.no) {
-    if (famiglia.tags.includes(forbidden)) return false;
-  }
-
+function compatibile(r, f) {
+  if (r.famiglia === f.nome) return false;
+  if (f.accetta !== "MF" && f.accetta !== r.sesso) return false;
+  for (const forbidden of r.no)
+    if (f.tags.includes(forbidden)) return false;
   return true;
 }
 
 // -----------------------------
-// SOLVER (BACKTRACKING)
+// SOLVER
 // -----------------------------
 function solve(ragazzi, famiglie) {
   const cap = Object.fromEntries(famiglie.map(f => [f.nome, f.capacita]));
@@ -89,7 +106,6 @@ function solve(ragazzi, famiglie) {
 
   function backtrack(i) {
     if (i === ragazzi.length) return true;
-
     const r = ragazzi[i];
 
     for (const f of famiglie) {
@@ -103,7 +119,6 @@ function solve(ragazzi, famiglie) {
         delete assegnazione[r.nome];
       }
     }
-
     return false;
   }
 
@@ -111,14 +126,32 @@ function solve(ragazzi, famiglie) {
 }
 
 // -----------------------------
-// COLLEGAMENTO UI
+// UI → SOLVER
 // -----------------------------
 document.getElementById("solve-btn").onclick = () => {
-  const ragazzi = parseRagazzi(document.getElementById("ragazzi-input").value);
-  const famiglie = parseFamiglie(document.getElementById("famiglie-input").value);
+  const ragazzi = parseRagazzi();
+  const famiglie = parseFamiglie();
 
   const result = solve(ragazzi, famiglie);
 
-  document.getElementById("output").textContent =
-    result ? JSON.stringify(result, null, 2) : "Nessuna soluzione trovata";
+  if (!result) {
+    showAlert("Nessuna soluzione trovata", "danger");
+    document.getElementById("output").innerHTML = "";
+    return;
+  }
+
+  showAlert("Soluzione trovata!", "success");
+
+  // Badge colorati
+  let html = "<ul class='list-group'>";
+  for (const [r, f] of Object.entries(result)) {
+    html += `
+      <li class="list-group-item d-flex justify-content-between">
+        <span><strong>${r}</strong></span>
+        <span class="badge bg-primary">${f}</span>
+      </li>`;
+  }
+  html += "</ul>";
+
+  document.getElementById("output").innerHTML = html;
 };
