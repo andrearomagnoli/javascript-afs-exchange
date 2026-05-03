@@ -1,9 +1,12 @@
 // -----------------------------
 // TEMA SCURO
 // -----------------------------
-document.getElementById("themeToggle").addEventListener("change", e => {
-  document.body.classList.toggle("dark-theme", e.target.checked);
-});
+const themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  themeToggle.addEventListener("change", e => {
+    document.body.classList.toggle("dark-theme", e.target.checked);
+  });
+}
 
 // -----------------------------
 // ALERT
@@ -54,36 +57,41 @@ function addFamigliaRow() {
 // -----------------------------
 function parseRagazzi() {
   const rows = document.querySelectorAll("#ragazzi-table tbody tr");
-  return [...rows].map(r => {
-    const nome = r.children[0].querySelector("input").value.trim();
-    const sesso = r.children[1].querySelector("select").value.trim();
-    const no = r.children[2].querySelector("input").value
-      .split(",").map(x => x.trim()).filter(x => x);
+  return [...rows]
+    .filter(r => r.children[0].querySelector("input").value.trim() !== "")
+    .map(r => {
+      const nome = r.children[0].querySelector("input").value.trim();
+      const sesso = r.children[1].querySelector("select").value.trim();
+      const no = r.children[2].querySelector("input").value
+        .split(",").map(x => x.trim()).filter(x => x);
 
-    return {
-      nome,
-      sesso,
-      no,
-      famiglia: nome.split(" ").slice(-1)[0]
-    };
-  });
+      return {
+        nome,
+        sesso,
+        no,
+        famiglia: nome.split(" ").slice(-1)[0]
+      };
+    });
 }
 
 function parseFamiglie() {
   const rows = document.querySelectorAll("#famiglie-table tbody tr");
-  return [...rows].map(r => {
-    const nome = r.children[0].querySelector("input").value.trim();
-    const capSex = r.children[1].querySelector("input").value.trim();
+  return [...rows]
+    .filter(r => r.children[0].querySelector("input").value.trim() !== "")
+    .map(r => {
+      const nome = r.children[0].querySelector("input").value.trim();
+      const capSex = r.children[1].querySelector("input").value.trim();
 
-    const capacita = parseInt(capSex);
-    let accetta = capSex.replace(/[0-9]/g, "").toUpperCase();
-    accetta = accetta.split("").sort().join(""); // FM → MF
+      const capacita = parseInt(capSex);
+      let accetta = capSex.replace(/[0-9]/g, "").toUpperCase();
+      accetta = accetta.split("").sort().join(""); // FM → MF
+      if (!accetta) accetta = "MF";
 
-    const tags = r.children[2].querySelector("input").value
-      .split(",").map(x => x.trim()).filter(x => x);
+      const tags = r.children[2].querySelector("input").value
+        .split(",").map(x => x.trim()).filter(x => x);
 
-    return { nome, capacita, accetta, tags };
-  });
+      return { nome, capacita, accetta, tags };
+    });
 }
 
 // -----------------------------
@@ -142,7 +150,6 @@ document.getElementById("solve-btn").onclick = () => {
 
   showAlert("Soluzione trovata!", "success");
 
-  // Badge colorati
   let html = "<ul class='list-group'>";
   for (const [r, f] of Object.entries(result)) {
     html += `
