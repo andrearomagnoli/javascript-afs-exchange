@@ -86,14 +86,15 @@ function parseFamiglie() {
       const capacita = parseInt(capSex.match(/\d+/)?.[0] || "0");
 
       // Estrai lettere M/F ovunque siano
-      let accetta = (capSex.match(/[MF]/gi) || [])
-        .join("")
-        .toUpperCase()
-        .split("")
-        .sort()
-        .join("");
+      const letters = (capSex.match(/[MF]/gi) || []).map(x => x.toUpperCase());
+      const hasM = letters.includes("M");
+      const hasF = letters.includes("F");
 
-      if (!accetta) accetta = "MF";
+      let accetta;
+      if (hasM && hasF) accetta = "MF";
+      else if (hasM) accetta = "M";
+      else if (hasF) accetta = "F";
+      else accetta = "MF"; // fallback
 
       const tags = r.children[2].querySelector("input").value
         .split(",").map(x => x.trim()).filter(x => x);
