@@ -34,7 +34,15 @@ function parseFamiglie(text) {
 
     const capSex = parts[1].trim();
     const capacita = parseInt(capSex);
-    const accetta = capSex.replace(/[0-9]/g, "");
+
+    // Estrai solo le lettere M/F
+    let accetta = capSex.replace(/[0-9]/g, "").toUpperCase();
+
+    // Normalizza: ordina alfabeticamente i caratteri
+    accetta = accetta.split("").sort().join("");
+
+    // Trasforma "FM" → "MF"
+    if (accetta === "MF") accetta = "MF";
 
     const tags = parts
       .slice(2)
