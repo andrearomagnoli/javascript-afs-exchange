@@ -207,3 +207,34 @@ body.dark-theme select.form-select {
     -webkit-text-fill-color: #fff !important;
   }
 }
+
+/* Celle più larghe su mobile */
+@media (max-width: 576px) {
+  #ragazzi-table td,
+  #ragazzi-table th,
+  #famiglie-table td,
+  #famiglie-table th {
+    min-width: 140px; /* spazio sufficiente per input e select */
+  }
+}
+
+@media (max-width: 576px) {
+  input.form-control,
+  select.form-select {
+    min-height: 48px !important;
+    font-size: 1.15rem !important;
+    padding: 10px 12px !important;
+  }
+}
+
+select.form-select {
+  color: #000 !important;
+  background-color: #fff !important;
+  -webkit-text-fill-color: #000 !important; /* iPhone fix */
+}
+
+body.dark-theme select.form-select {
+  color: #fff !important;
+  background-color: #333 !important;
+  -webkit-text-fill-color: #fff !important;
+}
