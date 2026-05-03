@@ -47,13 +47,18 @@ function addFamigliaRow() {
     <td><input class="form-control" placeholder="Rossi"></td>
     <td><input class="form-control" placeholder="2MF"></td>
     <td><input class="form-control" placeholder="gatti, uccelli"></td>
-    <td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">x</button></td>
+    <td class="text-center">
+      <input type="checkbox" class="form-check-input same-sex-only">
+    </td>
+    <td>
+      <button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">x</button>
+    </td>
   `;
   tbody.appendChild(tr);
 }
 
 // -----------------------------
-// PARSER ROBUSTO
+// PARSER RAGAZZI
 // -----------------------------
 function parseRagazzi() {
   const rows = document.querySelectorAll("#ragazzi-table tbody tr");
@@ -69,11 +74,14 @@ function parseRagazzi() {
         nome,
         sesso,
         no,
-        famiglia: nome.split(" ").slice(-1)[0]
+        famiglia: nome.split(" ").slice(-1)[0]  // cognome
       };
     });
 }
 
+// -----------------------------
+// PARSER FAMIGLIE (CON MF CORRETTO + CHECK)
+// -----------------------------
 function parseFamiglie() {
   const rows = document.querySelectorAll("#famiglie-table tbody tr");
   return [...rows]
@@ -94,39 +102,65 @@ function parseFamiglie() {
       if (hasM && hasF) accetta = "MF";
       else if (hasM) accetta = "M";
       else if (hasF) accetta = "F";
-      else accetta = "MF"; // fallback
+      else accetta = "MF";
 
       const tags = r.children[2].querySelector("input").value
         .split(",").map(x => x.trim()).filter(x => x);
 
-      return { nome, capacita, accetta, tags };
+      const soloStessoSesso = r.querySelector(".same-sex-only").checked;
+
+      return { nome, capacita, accetta, tags, soloStessoSesso };
     });
 }
 
 // -----------------------------
 // COMPATIBILITÀ
 // -----------------------------
-function compatibile(r, f) {
-  if (r.famiglia === f.nome) return false;
+function compatibile(r, f, sessoCount) {
+
+  // Non può andare nella propria famiglia
+  if (r.famiglia.toLowerCase() === f.nome.toLowerCase()) return false;
+
+  // Vincolo M/F
   if (f.accetta !== "MF" && f.accetta !== r.sesso) return false;
+
+  // Vincoli "no"
   for (const forbidden of r.no)
     if (f.tags.includes(forbidden)) return false;
+
+  // Vincolo: solo stesso sesso
+  if (f.soloStessoSesso) {
+    const countM = sessoCount[f.nome].M;
+    const countF = sessoCount[f.nome].F;
+
+    if (countM + countF > 0) {
+      if ((countM > 0 && r.sesso === "F") ||
+          (countF > 0 && r.sesso === "M")) {
+        return false;
+      }
+    }
+  }
+
   return true;
 }
 
 // -----------------------------
-// SOLVER CON MRV (Minimum Remaining Values)
+// SOLVER CON MRV + VINCOLO SESSO
 // -----------------------------
 function solve(ragazzi, famiglie) {
 
   // MRV: ordina i ragazzi per numero di famiglie compatibili
   ragazzi.sort((a, b) => {
-    const ca = famiglie.filter(f => compatibile(a, f)).length;
-    const cb = famiglie.filter(f => compatibile(b, f)).length;
+    const ca = famiglie.filter(f => compatibile(a, f, {})).length;
+    const cb = famiglie.filter(f => compatibile(b, f, {})).length;
     return ca - cb;
   });
 
   const cap = Object.fromEntries(famiglie.map(f => [f.nome, f.capacita]));
+  const sessoCount = Object.fromEntries(
+    famiglie.map(f => [f.nome, { M: 0, F: 0 }])
+  );
+
   const assegnazione = {};
 
   function backtrack(i) {
@@ -134,13 +168,16 @@ function solve(ragazzi, famiglie) {
     const r = ragazzi[i];
 
     for (const f of famiglie) {
-      if (cap[f.nome] > 0 && compatibile(r, f)) {
+      if (cap[f.nome] > 0 && compatibile(r, f, sessoCount)) {
+
         cap[f.nome]--;
+        sessoCount[f.nome][r.sesso]++;
         assegnazione[r.nome] = f.nome;
 
         if (backtrack(i + 1)) return true;
 
         cap[f.nome]++;
+        sessoCount[f.nome][r.sesso]--;
         delete assegnazione[r.nome];
       }
     }
