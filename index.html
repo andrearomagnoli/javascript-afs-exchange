@@ -13,22 +13,40 @@
 
 <div class="container py-4">
 
-  <h1 class="mb-4 text-center">Assegnatore Ragazzi → Famiglie</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Assegnatore Ragazzi → Famiglie</h1>
+
+    <!-- Tema -->
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="themeToggle">
+      <label class="form-check-label" for="themeToggle">Tema scuro</label>
+    </div>
+  </div>
+
+  <!-- ALERT -->
+  <div id="alert-area"></div>
 
   <div class="row g-4">
 
     <!-- RAGAZZI -->
     <div class="col-md-6">
       <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          Ragazzi
+        <div class="card-header bg-primary text-white d-flex justify-content-between">
+          <span>Ragazzi</span>
+          <button class="btn btn-light btn-sm" onclick="addRagazzoRow()">+</button>
         </div>
-        <div class="card-body">
-          <textarea id="ragazzi-input" class="form-control" rows="10" placeholder="Es:
-Paolo Rossi, M, NO: cani
-Chiara Bianchi, F, NO: gatti
-Giulia Verdi, F
-Rebecca Viola, F"></textarea>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0" id="ragazzi-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Sesso</th>
+                <th>NO (tags)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -36,15 +54,22 @@ Rebecca Viola, F"></textarea>
     <!-- FAMIGLIE -->
     <div class="col-md-6">
       <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-          Famiglie
+        <div class="card-header bg-success text-white d-flex justify-content-between">
+          <span>Famiglie</span>
+          <button class="btn btn-light btn-sm" onclick="addFamigliaRow()">+</button>
         </div>
-        <div class="card-body">
-          <textarea id="famiglie-input" class="form-control" rows="10" placeholder="Es:
-Rossi, 1F
-Bianchi, 2M, TAGS: gatti
-Viola, 1F, TAGS: gatti
-Gialli, 1F"></textarea>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0" id="famiglie-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Capacità+Sesso</th>
+                <th>Tags</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -60,15 +85,13 @@ Gialli, 1F"></textarea>
       Risultato
     </div>
     <div class="card-body">
-      <pre id="output" class="mb-0"></pre>
+      <div id="output"></div>
     </div>
   </div>
 
 </div>
 
 <script src="script.js"></script>
-
-<!-- BOOTSTRAP JS (opzionale) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
