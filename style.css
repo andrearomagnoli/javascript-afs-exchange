@@ -1,4 +1,18 @@
-pre {
-  white-space: pre-wrap;
-  font-size: 0.95rem;
+.dark-theme {
+  background-color: #222 !important;
+  color: #eee !important;
+}
+
+.dark-theme .card {
+  background-color: #333;
+  color: #eee;
+}
+
+.dark-theme .table {
+  color: #eee;
+}
+
+.dark-theme .list-group-item {
+  background-color: #333;
+  color: #eee;
 }
