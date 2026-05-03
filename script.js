@@ -53,7 +53,7 @@ function addFamigliaRow() {
 }
 
 // -----------------------------
-// PARSER
+// PARSER ROBUSTO
 // -----------------------------
 function parseRagazzi() {
   const rows = document.querySelectorAll("#ragazzi-table tbody tr");
@@ -82,9 +82,17 @@ function parseFamiglie() {
       const nome = r.children[0].querySelector("input").value.trim();
       const capSex = r.children[1].querySelector("input").value.trim();
 
-      const capacita = parseInt(capSex);
-      let accetta = capSex.replace(/[0-9]/g, "").toUpperCase();
-      accetta = accetta.split("").sort().join(""); // FM → MF
+      // Estrai numeri ovunque siano
+      const capacita = parseInt(capSex.match(/\d+/)?.[0] || "0");
+
+      // Estrai lettere M/F ovunque siano
+      let accetta = (capSex.match(/[MF]/gi) || [])
+        .join("")
+        .toUpperCase()
+        .split("")
+        .sort()
+        .join("");
+
       if (!accetta) accetta = "MF";
 
       const tags = r.children[2].querySelector("input").value
@@ -106,9 +114,17 @@ function compatibile(r, f) {
 }
 
 // -----------------------------
-// SOLVER
+// SOLVER CON MRV (Minimum Remaining Values)
 // -----------------------------
 function solve(ragazzi, famiglie) {
+
+  // Ordina i ragazzi per numero di famiglie compatibili (MRV)
+  ragazzi.sort((a, b) => {
+    const ca = famiglie.filter(f => compatibile(a, f)).length;
+    const cb = famiglie.filter(f => compatibile(b, f)).length;
+    return ca - cb;
+  });
+
   const cap = Object.fromEntries(famiglie.map(f => [f.nome, f.capacita]));
   const assegnazione = {};
 
